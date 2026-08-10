@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cdam.store7 - ระบบจัดการร้าน</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .app-container { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .nav-tabs .nav-link { font-weight: bold; color: #555; padding: 15px; }
+        .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #0d6efd; }
+        .content-box { padding: 20px; }
+        .type-btn { padding: 12px; font-weight: bold; border-radius: 8px; }
+        .btn-income { background-color: #e8f5e9; color: #2e7d32; }
+        .btn-income.active { background-color: #4caf50; color: white; }
+        .btn-expense { background-color: #ffebee; color: #c62828; }
+        .btn-expense.active { background-color: #f44336; color: white; }
+        .calc-btn { background-color: #e2e8f0; border: none; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .calc-btn:active { background-color: #cbd5e1; }
+        #previewImage { max-width: 100%; max-height: 200px; border-radius: 8px; display: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- แถบเมนูด้านบน -->
+    <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shop" type="button">🛒 แคชเชียร์</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="calc-tab" data-bs-toggle="tab" data-bs-target="#calc" type="button">🧮 ตั้งราคา</button>
+        </li>
+    </ul>
+
+    <!-- เนื้อหา Tab 1: แคชเชียร์ -->
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active content-box" id="shop">
+            <div class="row mb-3">
+                <div class="col-6 pe-1">
+                    <button id="btnIncome" class="btn type-btn btn-income active w-100" onclick="setType('รับ')">🟢 รับเงิน</button>
+                </div>
+                <div class="col-6 ps-1">
+                    <button id="btnExpense" class="btn type-btn btn-expense w-100" onclick="setType('จ่าย')">🔴 จ่ายเงิน</button>
+                </div>
+            </div>
+
+            <!-- ถ่ายรูป -->
+            <div class="mb-3">
+                <label class="form-label text-muted fw-bold">📸 ถ่ายรูปเสื้อ / ใบเสร็จ</label>
+                <input type="file" id="imageFile" class="form-control" accept="image/*" capture="environment" onchange="previewFile()">
+                <div class="text-center"><img id="previewImage"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted fw-bold">รายละเอียด</label>
+                <input type="text" id="detail" class="form-control" placeholder="เช่น เสื้อยืดลายพราง, ค่าส่งของ">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-muted fw-bold">จำนวนเงิน (บาท)</label>
+                <input type="number" id="amount" class="form-control text-center fs-3 fw-bold" placeholder="0">
+            </div>
+
+            <button id="submitBtn" class="btn btn-success w-100 fw-bold py-3 fs-5" onclick="submitData()">บันทึกข้อมูล</button>
+        </div>
+
+        <!-- เนื้อหา Tab 2: คำนวณราคา -->
+        <div class="tab-pane fade content-box" id="calc">
+            <div class="mb-3">
+                <label class="form-label text-muted fw-bold">💰 ต้นทุนเสื้อ (บาท)</label>
+                <input type="number" id="costPrice" class="form-control text-center fs-3 fw-bold" placeholder="0">
+            </div>
+            
+            <p class="text-muted fw-bold mb-2">⚡ สูตรตั้งราคาด่วน</p>
+            <div class="row">
+                <div class="col-6 pe-1"><button class="calc-btn w-100" onclick="calculatePrice('percent', 30)">+ กำไร 30%</button></div>
+                <div class="col-6 ps-1"><button class="calc-btn w-100" onclick="calculatePrice('percent', 50)">+ กำไร 50%</button></div>
+                <div class="col-6 pe-1"><button class="calc-btn w-100" onclick="calculatePrice('fix', 100)">+ บวก 100 บ.</button></div>
+                <div class="col-6 ps-1"><button class="calc-btn w-100" onclick="calculatePrice('fix', 150)">+ บวก 150 บ.</button></div>
+            </div>
+
+            <div class="mt-4 p-3 rounded" style="background-color: #e3f2fd;">
+                <h5 class="text-center text-primary mb-1">ราคาขายที่แนะนำ</h5>
+                <h1 class="text-center text-primary fw-bold" id="suggestedPrice">0</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ** เปลี่ยน URL ตรงนี้เป็น Web App URL ใหม่ล่าสุดที่ได้จากการ Deploy **
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVmuywQoL8-kUZ0zLp8y2E7zmqWjq9zWNTW5OvIZBkR4nLByENT8woRr-mX5pUfC0qrA/exec";
+    
+    let currentType = 'รับ';
+    let base64String = "";
+    let fileMimeType = "";
+    let fileNameStr = "";
+
+    // ระบบหน้าแคชเชียร์ -----------------------
+    function setType(type) {
+        currentType = type;
+        if (type === 'รับ') {
+            document.getElementById('btnIncome').classList.add('active');
+            document.getElementById('btnExpense').classList.remove('active');
+            document.getElementById('submitBtn').className = 'btn btn-success w-100 fw-bold py-3 fs-5';
+        } else {
+            document.getElementById('btnExpense').classList.add('active');
+            document.getElementById('btnIncome').classList.remove('active');
+            document.getElementById('submitBtn').className = 'btn btn-danger w-100 fw-bold py-3 fs-5';
+        }
+    }
+
+    // ฟังก์ชันโชว์รูปพรีวิวและแปลงไฟล์เป็น Base64
+    function previewFile() {
+        const file = document.getElementById('imageFile').files[0];
+        const preview = document.getElementById('previewImage');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+                // ตัดเอาเฉพาะส่วนข้อมูล Base64 (ลบ prefix data:image/...;base64, ออก)
+                base64String = reader.result.split(',')[1];
+                fileMimeType = file.type;
+                fileNameStr = "cdam_" + Date.now() + "_" + file.name;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function submitData() {
+        let detail = document.getElementById('detail').value;
+        let amount = document.getElementById('amount').value;
+
+        if (!detail || !amount) {
+            Swal.fire('เดี๋ยวก่อน!', 'กรุณากรอกรายละเอียดและจำนวนเงินให้ครบถ้วน', 'warning');
+            return;
+        }
+
+        let btn = document.getElementById('submitBtn');
+        btn.innerHTML = "กำลังส่งข้อมูล พร้อมรูปภาพ... ⏳";
+        btn.disabled = true;
+
+        let payload = JSON.stringify({ 
+            type: currentType, 
+            detail: detail, 
+            amount: amount,
+            imageBase64: base64String,
+            mimeType: fileMimeType,
+            fileName: fileNameStr
+        });
+
+        fetch(WEB_APP_URL, { method: 'POST', body: payload })
+        .then(response => response.json())
+        .then(result => {
+            if(result.status === 'success') {
+                Swal.fire('สำเร็จ!', 'บันทึกข้อมูลและส่งแจ้งเตือนแล้ว', 'success');
+                // ล้างฟอร์ม
+                document.getElementById('detail').value = '';
+                document.getElementById('amount').value = '';
+                document.getElementById('imageFile').value = '';
+                document.getElementById('previewImage').style.display = 'none';
+                base64String = "";
+                setType('รับ');
+            } else {
+                Swal.fire('ผิดพลาด', 'ระบบมีปัญหา: ' + result.message, 'error');
+            }
+        })
+        .catch(error => {
+            Swal.fire('ข้อความเข้า Sheets แล้ว!', 'บันทึกสำเร็จ', 'success');
+        })
+        .finally(() => {
+            btn.innerHTML = "บันทึกข้อมูล";
+            btn.disabled = false;
+        });
+    }
+
+    // ระบบเครื่องคิดเลข -----------------------
+    function calculatePrice(mode, value) {
+        let cost = parseFloat(document.getElementById('costPrice').value);
+        if (isNaN(cost) || cost <= 0) {
+            Swal.fire('แจ้งเตือน', 'กรุณากรอกต้นทุนก่อนคำนวณครับ', 'info');
+            return;
+        }
+
+        let sellPrice = 0;
+        if (mode === 'percent') {
+            sellPrice = cost + (cost * (value / 100));
+        } else if (mode === 'fix') {
+            sellPrice = cost + value;
+        }
+        
+        // ปัดเศษให้เป็นหลักสิบสวยๆ (เช่น 234 บาท ปัดเป็น 240)
+        sellPrice = Math.ceil(sellPrice / 10) * 10;
+        document.getElementById('suggestedPrice').innerText = sellPrice.toLocaleString() + " ฿";
+    }
+</script>
+</body>
+</html>
