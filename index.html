@@ -2,129 +2,172 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cdam.store7 - ระบบจัดการร้าน</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>cdam.store7 POS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
-        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .app-container { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        .nav-tabs .nav-link { font-weight: bold; color: #555; padding: 15px; }
-        .nav-tabs .nav-link.active { color: #000; border-bottom: 3px solid #0d6efd; }
-        .content-box { padding: 20px; }
-        .type-btn { padding: 12px; font-weight: bold; border-radius: 8px; }
-        .btn-income { background-color: #e8f5e9; color: #2e7d32; }
-        .btn-income.active { background-color: #4caf50; color: white; }
-        .btn-expense { background-color: #ffebee; color: #c62828; }
-        .btn-expense.active { background-color: #f44336; color: white; }
-        .calc-btn { background-color: #e2e8f0; border: none; font-weight: bold; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .calc-btn:active { background-color: #cbd5e1; }
-        #previewImage { max-width: 100%; max-height: 200px; border-radius: 8px; display: none; margin-top: 10px; }
+        :root { --bg: #f4f7f6; --card: #ffffff; --primary: #1e293b; --income: #10b981; --expense: #f43f5e; }
+        body { background: var(--bg); font-family: 'Prompt', sans-serif; color: var(--primary); margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+        .header { background: var(--card); padding: 20px; text-align: center; font-weight: 700; font-size: 24px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        
+        .tab-content { display: none; padding: 0 20px; animation: fade 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Elements */
+        .type-toggle { display: flex; background: #e2e8f0; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+        .type-btn { flex: 1; border: none; padding: 12px; font-weight: 600; border-radius: 10px; background: transparent; color: #64748b; cursor: pointer; transition: 0.3s; }
+        .type-btn.active-in { background: var(--income); color: white; }
+        .type-btn.active-ex { background: var(--expense); color: white; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--card); font-family: 'Prompt'; font-size: 16px; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        
+        .upload-box { background: var(--card); border: 2px dashed #cbd5e1; border-radius: 15px; padding: 25px 20px; text-align: center; color: #94a3b8; margin-bottom: 20px; position: relative; overflow: hidden; cursor: pointer; }
+        .upload-box input { display: none; }
+        .upload-box i { font-size: 36px; margin-bottom: 5px; }
+        #previewImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
+        
+        .submit-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; font-family: 'Prompt'; background: var(--income); color: white; cursor: pointer; margin-top: 10px; }
+        
+        /* History Items */
+        .history-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .h-detail { font-weight: 600; font-size: 16px; }
+        .h-date { font-size: 12px; color: #94a3b8; }
+        .h-amount { font-weight: 700; font-size: 18px; }
+        .text-in { color: var(--income); }
+        .text-ex { color: var(--expense); }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--card); display: flex; justify-content: space-around; padding: 12px 0; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 100; }
+        .nav-item { text-align: center; color: #94a3b8; width: 33.33%; cursor: pointer; }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 2px; }
+        .nav-item span { font-size: 12px; font-weight: 600; }
+        .nav-item.active { color: #3b82f6; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <!-- แถบเมนูด้านบน -->
-    <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shop" type="button">🛒 แคชเชียร์</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="calc-tab" data-bs-toggle="tab" data-bs-target="#calc" type="button">🧮 ตั้งราคา</button>
-        </li>
-    </ul>
+    <div class="header">cdam.store7</div>
 
-    <!-- เนื้อหา Tab 1: แคชเชียร์ -->
-    <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active content-box" id="shop">
-            <div class="row mb-3">
-                <div class="col-6 pe-1">
-                    <button id="btnIncome" class="btn type-btn btn-income active w-100" onclick="setType('รับ')">🟢 รับเงิน</button>
-                </div>
-                <div class="col-6 ps-1">
-                    <button id="btnExpense" class="btn type-btn btn-expense w-100" onclick="setType('จ่าย')">🔴 จ่ายเงิน</button>
-                </div>
-            </div>
-
-            <!-- ถ่ายรูป -->
-            <div class="mb-3">
-                <label class="form-label text-muted fw-bold">📸 ถ่ายรูปเสื้อ / ใบเสร็จ</label>
-                <input type="file" id="imageFile" class="form-control" accept="image/*" capture="environment" onchange="previewFile()">
-                <div class="text-center"><img id="previewImage"></div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label text-muted fw-bold">รายละเอียด</label>
-                <input type="text" id="detail" class="form-control" placeholder="เช่น เสื้อยืดลายพราง, ค่าส่งของ">
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label text-muted fw-bold">จำนวนเงิน (บาท)</label>
-                <input type="number" id="amount" class="form-control text-center fs-3 fw-bold" placeholder="0">
-            </div>
-
-            <button id="submitBtn" class="btn btn-success w-100 fw-bold py-3 fs-5" onclick="submitData()">บันทึกข้อมูล</button>
+    <!-- Tab 1: แคชเชียร์ -->
+    <div id="tab-cashier" class="tab-content active">
+        <div class="type-toggle">
+            <button id="btnIn" class="type-btn active-in" onclick="setType('รับ')">🟢 รับเงิน</button>
+            <button id="btnEx" class="type-btn" onclick="setType('จ่าย')">🔴 จ่ายเงิน</button>
         </div>
 
-        <!-- เนื้อหา Tab 2: คำนวณราคา -->
-        <div class="tab-pane fade content-box" id="calc">
-            <div class="mb-3">
-                <label class="form-label text-muted fw-bold">💰 ต้นทุนเสื้อ (บาท)</label>
-                <input type="number" id="costPrice" class="form-control text-center fs-3 fw-bold" placeholder="0">
-            </div>
-            
-            <p class="text-muted fw-bold mb-2">⚡ สูตรตั้งราคาด่วน</p>
-            <div class="row">
-                <div class="col-6 pe-1"><button class="calc-btn w-100" onclick="calculatePrice('percent', 30)">+ กำไร 30%</button></div>
-                <div class="col-6 ps-1"><button class="calc-btn w-100" onclick="calculatePrice('percent', 50)">+ กำไร 50%</button></div>
-                <div class="col-6 pe-1"><button class="calc-btn w-100" onclick="calculatePrice('fix', 100)">+ บวก 100 บ.</button></div>
-                <div class="col-6 ps-1"><button class="calc-btn w-100" onclick="calculatePrice('fix', 150)">+ บวก 150 บ.</button></div>
-            </div>
+        <label class="upload-box">
+            <i class='bx bx-camera'></i><br>แตะเพื่อถ่ายรูป
+            <input type="file" id="imageFile" accept="image/*" capture="environment" onchange="previewFile()">
+            <img id="previewImg">
+        </label>
 
-            <div class="mt-4 p-3 rounded" style="background-color: #e3f2fd;">
-                <h5 class="text-center text-primary mb-1">ราคาขายที่แนะนำ</h5>
-                <h1 class="text-center text-primary fw-bold" id="suggestedPrice">0</h1>
-            </div>
+        <div class="input-group">
+            <label>รายการ / ชื่อสินค้า</label>
+            <input type="text" id="detail" placeholder="เช่น Stussy, ค่าไฟ">
+        </div>
+
+        <div class="input-group" id="costGroup">
+            <label>ต้นทุน (บาท)</label>
+            <input type="number" id="cost" placeholder="0">
+        </div>
+
+        <div class="input-group">
+            <label>ราคาขาย / ยอดจ่าย (บาท)</label>
+            <input type="number" id="amount" placeholder="0" style="font-size: 24px; font-weight: bold;">
+        </div>
+
+        <button id="submitBtn" class="submit-btn" onclick="submitData()">บันทึกรายการ</button>
+    </div>
+
+    <!-- Tab 2: ประวัติ -->
+    <div id="tab-history" class="tab-content">
+        <h4 style="margin-bottom: 15px;">📊 ประวัติล่าสุด</h4>
+        <div id="historyList">
+            <div style="text-align: center; padding: 20px; color: #94a3b8;">กำลังโหลดข้อมูล...</div>
+        </div>
+    </div>
+
+    <!-- Tab 3: เครื่องคิดเลขตั้งราคา -->
+    <div id="tab-calc" class="tab-content">
+        <div class="input-group">
+            <label>ต้นทุนสินค้า (บาท)</label>
+            <input type="number" id="calcCost" placeholder="0" style="font-size: 24px; font-weight: bold;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <button class="submit-btn" style="background:#e2e8f0; color:#1e293b; font-size:16px;" onclick="calcPrice(30)">+ กำไร 30%</button>
+            <button class="submit-btn" style="background:#e2e8f0; color:#1e293b; font-size:16px;" onclick="calcPrice(50)">+ กำไร 50%</button>
+            <button class="submit-btn" style="background:#e2e8f0; color:#1e293b; font-size:16px;" onclick="calcPriceFix(100)">+ 100 บาท</button>
+            <button class="submit-btn" style="background:#e2e8f0; color:#1e293b; font-size:16px;" onclick="calcPriceFix(150)">+ 150 บาท</button>
+        </div>
+        <div style="background: #3b82f6; color: white; padding: 20px; border-radius: 15px; text-align: center;">
+            <div style="font-size: 14px; opacity: 0.8;">ราคาขายแนะนำ</div>
+            <div style="font-size: 32px; font-weight: bold;" id="suggestedPrice">0 ฿</div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-cashier" onclick="switchTab('cashier')">
+            <i class='bx bx-store'></i><span>แคชเชียร์</span>
+        </div>
+        <div class="nav-item" id="nav-history" onclick="switchTab('history')">
+            <i class='bx bx-history'></i><span>ประวัติ</span>
+        </div>
+        <div class="nav-item" id="nav-calc" onclick="switchTab('calc')">
+            <i class='bx bx-calculator'></i><span>ตั้งราคา</span>
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ** เปลี่ยน URL ตรงนี้เป็น Web App URL ใหม่ล่าสุดที่ได้จากการ Deploy **
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQDYpLye48b7yG20xhiV9uWCeCHkaaqYVlozmpcqDjHmT5d4Mp5vam5A9nrXhmsI5hZg/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyvY_yD8G7do49v6QIOXa0BvuMEjS-FBV_215jPGcPmBQq5P5wzLbrk4k-fW9XhxU5xEg/exec"; // URL ของ Apps Script
     
     let currentType = 'รับ';
-    let base64String = "";
-    let fileMimeType = "";
-    let fileNameStr = "";
+    let base64String = "", fileMimeType = "", fileNameStr = "";
 
-    // ระบบหน้าแคชเชียร์ -----------------------
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('nav-' + tab).classList.add('active');
+
+        // ถ้ากดมาหน้าประวัติ ให้ดึงข้อมูลทันที
+        if(tab === 'history') loadHistory();
+    }
+
     function setType(type) {
         currentType = type;
+        const btnSub = document.getElementById('submitBtn');
+        const costGroup = document.getElementById('costGroup');
+        
         if (type === 'รับ') {
-            document.getElementById('btnIncome').classList.add('active');
-            document.getElementById('btnExpense').classList.remove('active');
-            document.getElementById('submitBtn').className = 'btn btn-success w-100 fw-bold py-3 fs-5';
+            document.getElementById('btnIn').classList.add('active-in');
+            document.getElementById('btnEx').classList.remove('active-ex');
+            btnSub.style.background = "var(--income)";
+            costGroup.style.display = "block"; // โชว์ช่องต้นทุน
         } else {
-            document.getElementById('btnExpense').classList.add('active');
-            document.getElementById('btnIncome').classList.remove('active');
-            document.getElementById('submitBtn').className = 'btn btn-danger w-100 fw-bold py-3 fs-5';
+            document.getElementById('btnEx').classList.add('active-ex');
+            document.getElementById('btnIn').classList.remove('active-in');
+            btnSub.style.background = "var(--expense)";
+            costGroup.style.display = "none"; // ซ่อนช่องต้นทุนเวลามีรายจ่าย
         }
     }
 
-    // ฟังก์ชันโชว์รูปพรีวิวและแปลงไฟล์เป็น Base64
     function previewFile() {
         const file = document.getElementById('imageFile').files[0];
-        const preview = document.getElementById('previewImage');
-        
         if (file) {
             const reader = new FileReader();
             reader.onloadend = function() {
-                preview.src = reader.result;
-                preview.style.display = 'block';
-                // ตัดเอาเฉพาะส่วนข้อมูล Base64 (ลบ prefix data:image/...;base64, ออก)
+                document.getElementById('previewImg').src = reader.result;
+                document.getElementById('previewImg').style.display = 'block';
                 base64String = reader.result.split(',')[1];
                 fileMimeType = file.type;
                 fileNameStr = "cdam_" + Date.now() + "_" + file.name;
@@ -135,69 +178,77 @@
 
     function submitData() {
         let detail = document.getElementById('detail').value;
+        let cost = document.getElementById('cost').value;
         let amount = document.getElementById('amount').value;
 
         if (!detail || !amount) {
-            Swal.fire('เดี๋ยวก่อน!', 'กรุณากรอกรายละเอียดและจำนวนเงินให้ครบถ้วน', 'warning');
+            Swal.fire('แจ้งเตือน', 'กรุณากรอกรายการและจำนวนเงิน', 'warning');
             return;
         }
 
         let btn = document.getElementById('submitBtn');
-        btn.innerHTML = "กำลังส่งข้อมูล พร้อมรูปภาพ... ⏳";
+        btn.innerHTML = "กำลังบันทึก... ⏳";
         btn.disabled = true;
 
         let payload = JSON.stringify({ 
-            type: currentType, 
-            detail: detail, 
-            amount: amount,
-            imageBase64: base64String,
-            mimeType: fileMimeType,
-            fileName: fileNameStr
+            type: currentType, detail: detail, cost: currentType === 'รับ' ? cost : 0, amount: amount,
+            imageBase64: base64String, mimeType: fileMimeType, fileName: fileNameStr
         });
 
         fetch(WEB_APP_URL, { method: 'POST', body: payload })
         .then(response => response.json())
         .then(result => {
-            if(result.status === 'success') {
-                Swal.fire('สำเร็จ!', 'บันทึกข้อมูลและส่งแจ้งเตือนแล้ว', 'success');
-                // ล้างฟอร์ม
-                document.getElementById('detail').value = '';
-                document.getElementById('amount').value = '';
-                document.getElementById('imageFile').value = '';
-                document.getElementById('previewImage').style.display = 'none';
-                base64String = "";
-                setType('รับ');
-            } else {
-                Swal.fire('ผิดพลาด', 'ระบบมีปัญหา: ' + result.message, 'error');
-            }
-        })
-        .catch(error => {
-            Swal.fire('ข้อความเข้า Sheets แล้ว!', 'บันทึกสำเร็จ', 'success');
-        })
-        .finally(() => {
-            btn.innerHTML = "บันทึกข้อมูล";
+            Swal.fire('เรียบร้อย!', 'บันทึกข้อมูลสำเร็จ', 'success');
+            document.getElementById('detail').value = '';
+            document.getElementById('cost').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('previewImg').style.display = 'none';
+            document.getElementById('imageFile').value = '';
+            base64String = "";
+        }).finally(() => {
+            btn.innerHTML = "บันทึกรายการ";
             btn.disabled = false;
         });
     }
 
-    // ระบบเครื่องคิดเลข -----------------------
-    function calculatePrice(mode, value) {
-        let cost = parseFloat(document.getElementById('costPrice').value);
-        if (isNaN(cost) || cost <= 0) {
-            Swal.fire('แจ้งเตือน', 'กรุณากรอกต้นทุนก่อนคำนวณครับ', 'info');
-            return;
-        }
-
-        let sellPrice = 0;
-        if (mode === 'percent') {
-            sellPrice = cost + (cost * (value / 100));
-        } else if (mode === 'fix') {
-            sellPrice = cost + value;
-        }
+    function loadHistory() {
+        let list = document.getElementById('historyList');
+        list.innerHTML = "<div style='text-align:center; padding:20px; color:#94a3b8;'>กำลังโหลด...</div>";
         
-        // ปัดเศษให้เป็นหลักสิบสวยๆ (เช่น 234 บาท ปัดเป็น 240)
-        sellPrice = Math.ceil(sellPrice / 10) * 10;
-        document.getElementById('suggestedPrice').innerText = sellPrice.toLocaleString() + " ฿";
+        fetch(WEB_APP_URL)
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success' && res.data.length > 0) {
+                let html = "";
+                res.data.forEach(item => {
+                    let isInc = item.type === 'รับ';
+                    let dateStr = new Date(item.date).toLocaleDateString('th-TH', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+                    html += `
+                    <div class="history-card">
+                        <div>
+                            <div class="h-detail">${item.detail}</div>
+                            <div class="h-date">${dateStr} ${isInc && item.profit ? '| กำไร ' + item.profit + ' บ.' : ''}</div>
+                        </div>
+                        <div class="h-amount ${isInc ? 'text-in' : 'text-ex'}">
+                            ${isInc ? '+' : '-'}${item.amount} ฿
+                        </div>
+                    </div>`;
+                });
+                list.innerHTML = html;
+            } else {
+                list.innerHTML = "<div style='text-align:center; padding:20px;'>ยังไม่มีรายการล่าสุด</div>";
+            }
+        });
+    }
+
+    function calcPrice(percent) {
+        let cost = parseFloat(document.getElementById('calcCost').value) || 0;
+        if(cost > 0) document.getElementById('suggestedPrice').innerText = (Math.ceil((cost + (cost * percent / 100)) / 10) * 10) + " ฿";
+    }
+    
+    function calcPriceFix(fixAmount) {
+        let cost = parseFloat(document.getElementById('calcCost').value) || 0;
+        if(cost > 0) document.getElementById('suggestedPrice').innerText = (cost + fixAmount) + " ฿";
     }
 </script>
 </body>
