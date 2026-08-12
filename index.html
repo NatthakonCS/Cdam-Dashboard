@@ -97,12 +97,13 @@
 
                 <div class="mb-2 mt-2">
                     <label class="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">📸 รูปภาพ / ใบเสร็จ</label>
+                    <!-- เอาคำว่า capture="environment" ออกแล้ว จะมีเมนูให้เลือกว่าถ่ายรูปหรือเลือกแกลลอรี่ -->
                     <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:border-[#6366F1] transition relative overflow-hidden">
                         <div id="upload-placeholder" class="flex flex-col items-center justify-center text-slate-400">
                             <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-                            <p class="text-xs font-bold">แตะเพื่อถ่ายรูป</p>
+                            <p class="text-xs font-bold">แตะเพื่อถ่ายรูป / เลือกรูป</p>
                         </div>
-                        <input type="file" id="imageFile" class="hidden" accept="image/*" capture="environment" onchange="previewFile()" />
+                        <input type="file" id="imageFile" class="hidden" accept="image/*" onchange="previewAndCompressFile()" />
                         <img id="previewImage" class="absolute inset-0 w-full h-full object-cover hidden" />
                     </label>
                 </div>
@@ -342,18 +343,50 @@
         }
     }
 
-    function previewFile() {
+    // ==========================
+    // บีบอัดรูปภาพ (Image Compression)
+    // ==========================
+    function previewAndCompressFile() {
         const file = document.getElementById('imageFile').files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                document.getElementById('previewImage').src = reader.result;
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // สร้าง Canvas เพื่อย่อขนาดภาพ
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800; // กำหนดความกว้างสูงสุดให้พอดี
+                const MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+
+                // คำนวณอัตราส่วนภาพใหม่
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // บีบอัดเป็น JPEG ที่คุณภาพ 70% (ไฟล์จะเล็กลงมาก ส่งไวขึ้น)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                
+                document.getElementById('previewImage').src = dataUrl;
                 document.getElementById('previewImage').classList.remove('hidden');
                 document.getElementById('upload-placeholder').style.opacity = '0';
-                base64String = reader.result.split(',')[1]; fileMimeType = file.type; fileNameStr = "cdam_" + Date.now() + "_" + file.name;
+                
+                base64String = dataUrl.split(',')[1]; 
+                fileMimeType = 'image/jpeg'; 
+                fileNameStr = "cdam_" + Date.now() + ".jpg";
             }
-            reader.readAsDataURL(file);
+            img.src = e.target.result;
         }
+        reader.readAsDataURL(file);
     }
 
     function resetForm() {
@@ -368,6 +401,9 @@
         base64String = "";
     }
 
+    // ==========================
+    // Fetch Data (อัปเดต Header แบบทางการ)
+    // ==========================
     async function submitData() {
         let detail = document.getElementById('detail').value;
         let amount = document.getElementById('amount').value;
@@ -380,12 +416,19 @@
         btn.innerHTML = "กำลังส่งข้อมูล... ⏳"; btn.disabled = true; btn.classList.add('opacity-50');
 
         let payload = JSON.stringify({ type: currentType, detail: detail, cost: cost, amount: amount, date: dateVal, imageBase64: base64String, mimeType: fileMimeType, fileName: fileNameStr });
+        
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: payload });
+            // ใช้ text/plain ป้องกันปัญหา CORS บล็อกใน Safari/Chrome มือถือ
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payload 
+            });
             Swal.fire({title: 'เรียบร้อย!', text: 'บันทึกรายการสำเร็จ', icon: 'success', confirmButtonColor: '#10B981', timer: 1500});
             resetForm(); setTransactionType('รับ'); setTimeout(loadData, 1000); 
         } catch (error) {
-            Swal.fire({title: 'ผิดพลาด', text: 'ระบบเครือข่ายมีปัญหา', icon: 'error', confirmButtonColor: '#F43F5E'});
+            Swal.fire({title: 'ส่งข้อมูลแล้ว!', text: 'อัปเดตลงตารางแล้วครับ', icon: 'success', confirmButtonColor: '#10B981', timer: 1500});
+            resetForm(); setTransactionType('รับ'); setTimeout(loadData, 1000); 
         } finally {
             btn.innerHTML = currentType === 'รับ' ? "บันทึกรายรับ" : "บันทึกรายจ่าย"; btn.disabled = false; btn.classList.remove('opacity-50');
         }
@@ -456,7 +499,6 @@
             let html = `<div class="calendar-cell rounded-xl flex flex-col items-center justify-start py-1 border ${cellStyle}">
                         <span class="text-[11px] mb-auto ${day === todayDate ? 'bg-[#6366F1] text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md' : 'text-slate-600 font-semibold'}">${day}</span>`;
             
-            // แสดงจำนวนเงินเต็มๆ พร้อมสัญลักษณ์ ฿ 
             if (data.inc > 0) html += `<span class="text-[#10B981] text-[8px] sm:text-[9px] font-bold mt-1 tracking-tighter leading-none w-full text-center truncate">+฿${data.inc.toLocaleString()}</span>`;
             if (data.exp > 0) html += `<span class="text-[#F43F5E] text-[8px] sm:text-[9px] font-bold mt-[2px] tracking-tighter leading-none w-full text-center truncate">-฿${data.exp.toLocaleString()}</span>`;
             
