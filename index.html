@@ -3,89 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>cdam.store7 POS</title>
+    <title>cdam.store7 OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #ffffff; padding-bottom: 90px; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
-    .card-bg { background-color: #1a1c23; }
-    .accent-green { color: #00e676; }
-    .bg-accent-green { background-color: #00e676; }
-    .accent-red { color: #ef4444; }
-    .bg-accent-red { background-color: #ef4444; }
-    .calendar-cell { height: 70px; transition: all 0.3s ease; overflow: hidden; }
+    :root {
+        --bg-main: #0F172A;     /* Slate 900 */
+        --card-bg: #1E293B;     /* Slate 800 */
+        --accent-in: #10B981;   /* Emerald 500 */
+        --accent-ex: #F43F5E;   /* Rose 500 */
+        --primary: #6366F1;     /* Indigo 500 */
+        --warn: #F59E0B;        /* Amber 500 */
+    }
+    body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #F8FAFC; padding-bottom: 90px; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+    .card-style { background-color: var(--card-bg); border: 1px solid #334155; border-radius: 1.25rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+    .text-income { color: var(--accent-in); }
+    .text-expense { color: var(--accent-ex); }
+    
+    .calendar-cell { height: 75px; transition: all 0.2s ease; overflow: hidden; }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-    .nav-item.active { color: #00e676; }
+    .nav-item.active { color: var(--primary); }
     ::-webkit-scrollbar { display: none; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body class="max-w-lg mx-auto">
 
 <!-- Header -->
-<div class="p-4 pt-8 sticky top-0 bg-[#0b0c10] z-20 border-b border-gray-800 shadow-md">
-    <div class="flex justify-between items-center mb-2 px-2">
-        <h1 class="text-xl font-bold tracking-wider">
-            CDAM<span class="text-gray-500">.STORE7</span>
-        </h1>
-        <div id="connection-status" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+<div class="p-4 pt-8 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-20 border-b border-[#334155] shadow-md flex justify-between items-center">
+    <h1 class="text-xl font-extrabold tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]">
+        CDAM<span class="text-slate-400 font-medium">.STORE7</span>
+    </h1>
+    <div class="flex items-center gap-2">
+        <span id="sync-text" class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">กำลังซิงค์...</span>
+        <div id="connection-status" class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.6)]"></div>
     </div>
 </div>
 
 <!-- Main Content -->
 <div class="p-4" id="main-content">
 
-    <!-- ================= DASHBOARD VIEW =================พพพพพพ -->
-    <div id="view-dashboard" class="view-section">
-        <div class="card-bg rounded-2xl p-6 mb-6 shadow-2xl border border-gray-800 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-400"></div>
-            <p class="text-[10px] text-gray-400 font-bold tracking-widest mb-1 uppercase" id="dashboard-total-title">กำไรสุทธิเดือนนี้ (Net Profit)</p>
-            <h2 class="text-4xl font-bold text-white mb-4" id="net-profit">฿0</h2>
-            <div class="grid grid-cols-2 gap-4 border-t border-gray-800 pt-4">
+    <!-- ================= 1. DASHBOARD VIEW ================= -->
+    <div id="view-dashboard" class="view-section fade-in">
+        
+        <div class="flex justify-between items-center bg-[#1E293B] rounded-full p-1.5 mb-5 border border-[#334155]">
+            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full bg-[#334155] text-white flex items-center justify-center hover:bg-[#475569] active:scale-95 transition">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span id="dash-month-title" class="font-bold text-sm tracking-widest uppercase text-[#6366F1]">...</span>
+            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full bg-[#334155] text-white flex items-center justify-center hover:bg-[#475569] active:scale-95 transition">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6 6"/></svg>
+            </button>
+        </div>
+
+        <div class="card-style p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#6366F1] to-[#10B981]"></div>
+            <p class="text-[10px] text-slate-400 font-bold tracking-widest mb-1 uppercase">กำไรสุทธิเดือนนี้ (Net Profit)</p>
+            <h2 class="text-4xl font-extrabold text-white mb-5" id="net-profit">฿0</h2>
+            
+            <div class="grid grid-cols-2 gap-4 border-t border-[#334155] pt-5">
                 <div>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">ยอดขายรวม</p>
-                    <h3 class="text-lg font-bold accent-green" id="total-income">฿0</h3>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">ยอดขายรวม</p>
+                    <h3 class="text-lg font-bold text-income" id="total-income">฿0</h3>
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">รายจ่ายหน้าร้าน</p>
-                    <h3 class="text-lg font-bold accent-red" id="total-expense">฿0</h3>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">รายจ่ายร้าน</p>
+                    <h3 class="text-lg font-bold text-expense" id="total-expense">฿0</h3>
                 </div>
             </div>
         </div>
 
-        <div class="card-bg rounded-2xl p-5 mb-6 shadow-lg border border-gray-800">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-sm font-bold tracking-tight">📅 ปฏิทินยอดขาย</h3>
-                <span id="month-title" class="text-[10px] font-bold text-[#00e676] bg-[#00e676]/10 px-3 py-1 rounded-full uppercase tracking-widest">...</span>
-            </div>
-            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-500 mb-2">
-                <div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div>
+        <div class="card-style p-5 mb-6">
+            <h3 class="text-sm font-bold tracking-tight mb-4 flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#6366F1]"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                ปฏิทินยอดขาย
+            </h3>
+            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-500 mb-2">
+                <div class="text-[#F43F5E]">อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div class="text-[#6366F1]">ส.</div>
             </div>
             <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
         </div>
     </div>
 
-    <!-- ================= ADD RECORD VIEW (ตัวหลัก) ================= -->
-    <div id="view-add" class="view-section hidden">
-        <div class="card-bg rounded-2xl p-6 shadow-lg border border-gray-800 relative">
-            
-            <!-- Toggle รับ/จ่าย -->
-            <div class="flex bg-gray-900 rounded-xl p-1 mb-5 border border-gray-700 relative">
-                <div id="toggle-bg" class="absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-accent-green rounded-lg transition-all duration-300"></div>
-                <button type="button" id="btn-type-income" class="w-1/2 py-2 text-sm font-bold text-black z-10 rounded-lg cursor-pointer" onclick="setTransactionType('รับ')">รายรับ (Income)</button>
-                <button type="button" id="btn-type-expense" class="w-1/2 py-2 text-sm font-bold text-gray-400 z-10 rounded-lg cursor-pointer" onclick="setTransactionType('จ่าย')">รายจ่าย (Expense)</button>
+    <!-- ================= 2. ADD RECORD VIEW ================= -->
+    <div id="view-add" class="view-section hidden fade-in">
+        <div class="card-style p-6 relative">
+            <div class="flex bg-[#0F172A] rounded-xl p-1.5 mb-6 border border-[#334155] relative shadow-inner">
+                <div id="toggle-bg" class="absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#10B981] rounded-lg transition-all duration-300"></div>
+                <button type="button" id="btn-type-income" class="w-1/2 py-2.5 text-sm font-bold text-[#0F172A] z-10 rounded-lg" onclick="setTransactionType('รับ')">🟢 รับเงิน (Income)</button>
+                <button type="button" id="btn-type-expense" class="w-1/2 py-2.5 text-sm font-bold text-slate-400 z-10 rounded-lg" onclick="setTransactionType('จ่าย')">🔴 จ่ายเงิน (Expense)</button>
             </div>
 
             <form id="sales-form" class="space-y-4">
-                
-                <!-- กล่องถ่ายรูป -->
                 <div class="mb-2">
-                    <label class="block text-[10px] font-bold text-gray-400 mb-2">📸 ถ่ายรูปเสื้อ / ใบเสร็จ</label>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer bg-gray-900 hover:border-[#00e676] transition relative overflow-hidden">
-                        <div id="upload-placeholder" class="flex flex-col items-center justify-center">
-                            <svg class="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-                            <p class="text-xs text-gray-500 font-bold">แตะเพื่อถ่ายรูป</p>
+                    <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider">📸 รูปภาพ / ใบเสร็จ</label>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#475569] rounded-xl cursor-pointer bg-[#0F172A] hover:border-[#6366F1] transition relative overflow-hidden">
+                        <div id="upload-placeholder" class="flex flex-col items-center justify-center text-slate-500">
+                            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                            <p class="text-xs font-bold">แตะเพื่อถ่ายรูป</p>
                         </div>
                         <input type="file" id="imageFile" class="hidden" accept="image/*" capture="environment" onchange="previewFile()" />
                         <img id="previewImage" class="absolute inset-0 w-full h-full object-cover hidden" />
@@ -93,73 +112,157 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">รายการสินค้า / รายละเอียด</label>
-                    <input type="text" id="detail" required placeholder="เช่น Stussy Hoodie" class="w-full bg-gray-900 text-white rounded-xl p-3 border border-gray-700 outline-none text-sm font-semibold focus:border-[#00e676]">
+                    <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">รายการสินค้า (Detail)</label>
+                    <input type="text" id="detail" required placeholder="เช่น เสื้อวงวินเทจ..." class="w-full bg-[#0F172A] text-white rounded-xl p-3.5 border border-[#334155] outline-none text-sm font-semibold focus:border-[#6366F1] transition">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div id="cost-container">
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">ทุนรับมา (Cost)</label>
-                        <input type="number" id="cost" placeholder="0" class="w-full bg-gray-900 text-gray-300 rounded-xl p-3 border border-gray-700 outline-none text-lg font-bold">
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">ทุน (Cost)</label>
+                        <input type="number" id="cost" placeholder="0" class="w-full bg-[#0F172A] text-slate-300 rounded-xl p-3.5 border border-[#334155] outline-none text-lg font-bold focus:border-[#6366F1] transition">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1" id="amount-label">ราคาขาย (Sell)</label>
-                        <input type="number" id="amount" required placeholder="0" class="w-full bg-gray-900 text-[#00e676] rounded-xl p-3 border border-gray-700 outline-none text-lg font-bold focus:border-[#00e676]">
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider" id="amount-label">ราคาขาย (Sell)</label>
+                        <input type="number" id="amount" required placeholder="0" class="w-full bg-[#0F172A] text-[#10B981] rounded-xl p-3.5 border border-[#334155] outline-none text-lg font-bold focus:border-[#10B981] transition shadow-inner">
                     </div>
                 </div>
 
-                <!-- ระบบคำนวณส่วนแบ่งอัจฉริยะ (โชว์เฉพาะตอนรับเงิน) -->
-                <div id="split-container" class="bg-gray-900/80 border border-[#00e676]/30 rounded-xl p-4 hidden mt-2">
-                    <p class="text-[10px] text-emerald-400 font-bold mb-2 uppercase border-b border-gray-800 pb-2">💡 สรุปส่วนแบ่งรายตัว</p>
-                    <div class="flex justify-between items-center text-xs mb-1">
-                        <span class="text-gray-400">คืนต้นทุนเข้าร้าน:</span>
+                <div id="split-container" class="bg-[#0F172A] border border-[#10B981]/30 rounded-xl p-4 hidden mt-2">
+                    <p class="text-[10px] text-[#10B981] font-bold mb-3 uppercase tracking-wider flex justify-between items-center border-b border-[#334155] pb-2">
+                        <span>💡 ระบบคำนวณส่วนแบ่ง</span>
+                        <span class="text-xs bg-[#10B981]/10 px-2 py-0.5 rounded-full">Auto</span>
+                    </p>
+                    <div class="flex justify-between items-center text-xs mb-1.5 text-slate-400">
+                        <span>คืนทุนเข้าร้าน:</span>
                         <span class="font-bold text-white" id="preview-cost">฿0</span>
                     </div>
-                    <div class="flex justify-between items-center text-xs mb-2 pb-2 border-b border-gray-800">
-                        <span class="text-[#00e676] font-bold">กำไรสุทธิ:</span>
-                        <span class="font-black text-[#00e676]" id="preview-profit">฿0</span>
+                    <div class="flex justify-between items-center text-xs mb-3 pb-3 border-b border-[#334155]/50">
+                        <span class="text-[#10B981] font-bold">กำไรสุทธิ:</span>
+                        <span class="font-black text-[#10B981] text-sm" id="preview-profit">฿0</span>
                     </div>
-                    <div class="flex justify-between items-center text-[11px]">
-                        <span class="text-blue-400">🤝 หุ้นส่วนได้คนละ (÷3):</span>
-                        <span class="font-bold text-blue-400" id="preview-share">฿0</span>
+                    <div class="flex justify-between items-center text-xs text-[#6366F1]">
+                        <span>✨ หุ้นส่วนได้คนละ (÷3):</span>
+                        <span class="font-bold text-[#6366F1] text-sm bg-[#6366F1]/10 px-2 py-1 rounded" id="preview-share">฿0</span>
                     </div>
                 </div>
 
-                <button type="button" class="w-full bg-accent-green text-black font-black uppercase rounded-xl p-4 mt-4 transition-colors" id="submit-btn" onclick="submitData()">
-                    บันทึกข้อมูลเข้าระบบ
+                <button type="button" class="w-full bg-[#10B981] text-[#0F172A] font-black uppercase tracking-widest rounded-xl p-4 mt-4 hover:opacity-90 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(16,185,129,0.4)]" id="submit-btn" onclick="submitData()">
+                    บันทึกข้อมูล
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ================= HISTORY VIEW ================= -->
-    <div id="view-history" class="view-section hidden">
-        <h3 class="text-lg font-bold mb-4 px-1 border-b border-gray-800 pb-3">ประวัติรายการล่าสุด</h3>
+    <!-- ================= 3. HISTORY VIEW ================= -->
+    <div id="view-history" class="view-section hidden fade-in">
+        <div class="flex justify-between items-center bg-[#1E293B] rounded-full p-1.5 mb-5 border border-[#334155]">
+            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full bg-[#334155] text-white flex items-center justify-center hover:bg-[#475569] active:scale-95 transition"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span id="history-month-title" class="font-bold text-sm tracking-widest uppercase text-[#6366F1]">...</span>
+            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full bg-[#334155] text-white flex items-center justify-center hover:bg-[#475569] active:scale-95 transition"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6 6"/></svg></button>
+        </div>
         <div id="history-list" class="space-y-3 pb-6">
-            <div class="text-center text-gray-500 text-sm mt-10">กำลังโหลดข้อมูล...</div>
+            <div class="text-center text-slate-500 text-sm mt-10 font-medium">กำลังโหลดข้อมูล...</div>
+        </div>
+    </div>
+
+    <!-- ================= 4. OVERVIEW VIEW (รวมระบบภาษี) ================= -->
+    <div id="view-overview" class="view-section hidden fade-in">
+        
+        <!-- All Time Stats -->
+        <div class="card-style p-6 mb-5 relative overflow-hidden bg-gradient-to-br from-[#1E293B] to-[#0F172A]">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-[#6366F1] rounded-full blur-3xl opacity-20"></div>
+            <p class="text-[10px] text-slate-400 font-bold tracking-widest mb-1 uppercase">ผลประกอบการรวมตั้งแต่เปิดร้าน</p>
+            <h2 class="text-3xl font-black text-white mb-2" id="ov-all-profit">฿0</h2>
+            <p class="text-xs text-[#10B981] font-semibold flex items-center gap-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                กำไรสุทธิรวม (All-time Net Profit)
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="card-style p-4 bg-[#6366F1]/10 border border-[#6366F1]/30">
+                <p class="text-[9px] text-[#6366F1] font-bold uppercase tracking-wider mb-2 text-center">หุ้นส่วนได้รับสะสม (คน)</p>
+                <h3 class="text-xl font-black text-white text-center" id="ov-all-share">฿0</h3>
+            </div>
+            <div class="card-style p-4 bg-[#10B981]/10 border border-[#10B981]/30">
+                <p class="text-[9px] text-[#10B981] font-bold uppercase tracking-wider mb-2 text-center">มาร์จิ้นกำไร (เดือนนี้)</p>
+                <h3 class="text-xl font-black text-white text-center" id="ov-margin">0%</h3>
+            </div>
+        </div>
+
+        <!-- TAX SYSTEM (NEW!) -->
+        <div class="card-style p-5 mb-5 border-l-4 border-l-[#F59E0B] shadow-[0_4px_15px_rgba(245,158,11,0.1)]">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                ⚖️ สุขภาพภาษีร้าน (ปี <span id="tax-year-title"></span>)
+            </h3>
+            
+            <!-- VAT Alert -->
+            <div class="mb-4 bg-[#0F172A] p-3 rounded-xl border border-[#334155]">
+                <div class="flex justify-between items-end mb-2">
+                    <p class="text-[10px] text-slate-400">ยอดขายรวมปีนี้ (เกณฑ์ VAT 1.8ล.)</p>
+                    <p class="text-xs font-bold" id="vat-text">฿0 / 1.8M</p>
+                </div>
+                <div class="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
+                    <div id="vat-bar" class="h-full bg-[#10B981] transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <p id="vat-warning" class="text-[9px] text-slate-500 mt-2 text-right">ยอดขายยังปลอดภัย</p>
+            </div>
+
+            <!-- Income Tax Calculation -->
+            <div class="bg-[#0F172A] p-3 rounded-xl border border-[#334155]">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-[10px] text-slate-400">ประเมินภาษีเงินได้สิ้นปี (อ้างอิงหักเหมา 60%)</p>
+                    <p class="text-sm font-black text-[#F59E0B]" id="tax-amount">฿0</p>
+                </div>
+                <div class="border-t border-[#334155] pt-2 mt-2">
+                    <p class="text-[10px] text-slate-400 flex justify-between">
+                        คำแนะนำ: <span id="tax-advice" class="font-bold text-[#10B981]">ยังไม่ต้องเสียภาษี</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-style p-5 mb-6">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-[#334155] pb-2">สัดส่วนเงินเดือนนี้</h3>
+            <div class="mb-4">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-[#10B981] font-bold">รับ <span id="ov-bar-inc-text">฿0</span></span>
+                    <span class="text-[#F43F5E] font-bold">จ่าย <span id="ov-bar-exp-text">฿0</span></span>
+                </div>
+                <div class="w-full h-3 bg-[#0F172A] rounded-full overflow-hidden flex">
+                    <div id="ov-bar-inc" class="h-full bg-[#10B981] transition-all duration-1000" style="width: 50%"></div>
+                    <div id="ov-bar-exp" class="h-full bg-[#F43F5E] transition-all duration-1000" style="width: 50%"></div>
+                </div>
+            </div>
+            <div class="p-3 bg-[#0F172A] rounded-xl border border-[#334155]">
+                <p class="text-[10px] text-slate-400 mb-1">สถานะการเงินเดือนนี้:</p>
+                <p class="text-sm font-bold" id="ov-status">กำลังประมวลผล...</p>
+            </div>
         </div>
     </div>
 
 </div>
 
 <!-- ================= BOTTOM NAVIGATION ================= -->
-<div class="fixed bottom-0 left-0 w-full bg-[#1a1c23] border-t border-gray-800 pb-safe z-50">
-    <div class="max-w-lg mx-auto grid grid-cols-3 items-center p-2 px-1">
-        <button onclick="switchTab('dashboard')" class="nav-item active flex flex-col items-center justify-center py-2 text-[#00e676]" id="tab-dashboard">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span class="text-[9px] mt-1.5 font-bold uppercase tracking-wide">หน้าหลัก</span>
+<div class="fixed bottom-0 left-0 w-full bg-[#1E293B]/95 backdrop-blur-md border-t border-[#334155] pb-safe z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
+    <div class="max-w-lg mx-auto grid grid-cols-4 items-center p-1.5">
+        <button onclick="switchTab('dashboard')" class="nav-item active flex flex-col items-center justify-center py-2 text-[#6366F1] transition" id="tab-dashboard">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">หน้าหลัก</span>
         </button>
-        
-        <button onclick="switchTab('add')" class="nav-item flex flex-col items-center justify-center relative text-gray-500" id="tab-add">
-            <div class="absolute -top-6 bg-accent-green text-black rounded-full p-3 shadow-[0_0_15px_rgba(0,230,118,0.4)]">
+        <button onclick="switchTab('add')" class="nav-item flex flex-col items-center justify-center relative text-slate-500 transition" id="tab-add">
+            <div class="absolute -top-6 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-full p-3 shadow-[0_5px_15px_rgba(99,102,241,0.5)] border-2 border-[#1E293B]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </div>
-            <span class="text-[9px] mt-7 font-bold uppercase tracking-wide">ขาย/จ่าย</span>
+            <span class="text-[8px] mt-7 font-bold uppercase tracking-wider text-slate-400">ลงบัญชี</span>
         </button>
-
-        <button onclick="switchTab('history')" class="nav-item flex flex-col items-center justify-center py-2 text-gray-500" id="tab-history">
+        <button onclick="switchTab('history')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-500 transition" id="tab-history">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line></svg>
-            <span class="text-[9px] mt-1.5 font-bold uppercase tracking-wide">ประวัติ</span>
+            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ประวัติ</span>
+        </button>
+        <button onclick="switchTab('overview')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-500 transition" id="tab-overview">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h14v-4"></path></svg>
+            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ภาพรวม</span>
         </button>
     </div>
 </div>
@@ -173,26 +276,33 @@
     let globalData = [];
     let currentType = 'รับ';
     let base64String = "", fileMimeType = "", fileNameStr = "";
-    const currentDate = new Date();
+    let currentViewDate = new Date();
 
     // ==========================
-    // จัดการ Tab & UI
+    // Navigation & Logic
     // ==========================
     function switchTab(tabId) {
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(el => {
-            el.classList.remove('active', 'text-[#00e676]');
-            el.classList.add('text-gray-500');
+            el.classList.remove('active', 'text-[#6366F1]');
+            el.classList.add('text-slate-500');
         });
         
         document.getElementById(`view-${tabId}`).classList.remove('hidden');
-        const tabBtn = document.getElementById(`tab-${tabId}`);
-        tabBtn.classList.add('active', 'text-[#00e676]');
-        tabBtn.classList.remove('text-gray-500');
+        document.getElementById(`tab-${tabId}`).classList.add('active', 'text-[#6366F1]');
+        document.getElementById(`tab-${tabId}`).classList.remove('text-slate-500');
 
         if(tabId === 'dashboard') renderDashboard();
         if(tabId === 'history') renderHistory();
+        if(tabId === 'overview') renderOverview();
+    }
+
+    function changeMonth(offset) {
+        currentViewDate.setMonth(currentViewDate.getMonth() + offset);
+        if(!document.getElementById('view-dashboard').classList.contains('hidden')) renderDashboard();
+        if(!document.getElementById('view-history').classList.contains('hidden')) renderHistory();
+        if(!document.getElementById('view-overview').classList.contains('hidden')) renderOverview();
     }
 
     function setTransactionType(type) {
@@ -207,31 +317,28 @@
         
         if (type === 'รับ') {
             bg.style.transform = 'translateX(0)';
-            bg.className = 'absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-[#00e676] rounded-lg transition-all duration-300';
-            btnInc.className = 'w-1/2 py-2 text-sm font-bold text-black z-10 rounded-lg';
-            btnExp.className = 'w-1/2 py-2 text-sm font-bold text-gray-400 z-10 rounded-lg';
-            submitBtn.innerText = 'บันทึกการขาย';
-            submitBtn.className = 'w-full bg-[#00e676] text-black font-black uppercase rounded-xl p-4 mt-4 transition-colors';
+            bg.className = 'absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#10B981] rounded-lg transition-all duration-300 shadow-md';
+            btnInc.className = 'w-1/2 py-2.5 text-sm font-bold text-[#0F172A] z-10 rounded-lg';
+            btnExp.className = 'w-1/2 py-2.5 text-sm font-bold text-slate-400 z-10 rounded-lg';
+            submitBtn.innerText = 'บันทึกรายรับ';
+            submitBtn.className = 'w-full bg-[#10B981] text-[#0F172A] font-black uppercase tracking-widest rounded-xl p-4 mt-4 hover:opacity-90 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(16,185,129,0.3)]';
             costContainer.style.display = 'block';
             amountLabel.innerText = 'ราคาขาย (Sell)';
-            amountInput.className = 'w-full bg-gray-900 text-[#00e676] rounded-xl p-3 border border-gray-700 outline-none text-lg font-bold focus:border-[#00e676]';
+            amountInput.className = 'w-full bg-[#0F172A] text-[#10B981] rounded-xl p-3.5 border border-[#334155] outline-none text-lg font-bold focus:border-[#10B981] transition shadow-inner';
         } else {
             bg.style.transform = 'translateX(100%)';
-            bg.className = 'absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-[#ef4444] rounded-lg transition-all duration-300';
-            btnExp.className = 'w-1/2 py-2 text-sm font-bold text-white z-10 rounded-lg';
-            btnInc.className = 'w-1/2 py-2 text-sm font-bold text-gray-400 z-10 rounded-lg';
+            bg.className = 'absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#F43F5E] rounded-lg transition-all duration-300 shadow-md';
+            btnExp.className = 'w-1/2 py-2.5 text-sm font-bold text-white z-10 rounded-lg';
+            btnInc.className = 'w-1/2 py-2.5 text-sm font-bold text-slate-500 z-10 rounded-lg';
             submitBtn.innerText = 'บันทึกรายจ่าย';
-            submitBtn.className = 'w-full bg-[#ef4444] text-white font-black uppercase rounded-xl p-4 mt-4 transition-colors';
+            submitBtn.className = 'w-full bg-[#F43F5E] text-white font-black uppercase tracking-widest rounded-xl p-4 mt-4 hover:opacity-90 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(244,63,94,0.3)]';
             costContainer.style.display = 'none';
-            amountLabel.innerText = 'ยอดเงินที่จ่าย (Pay)';
-            amountInput.className = 'w-full bg-gray-900 text-[#ef4444] rounded-xl p-3 border border-gray-700 outline-none text-lg font-bold focus:border-[#ef4444]';
+            amountLabel.innerText = 'ยอดที่จ่าย (Pay)';
+            amountInput.className = 'w-full bg-[#0F172A] text-[#F43F5E] rounded-xl p-3.5 border border-[#334155] outline-none text-lg font-bold focus:border-[#F43F5E] transition shadow-inner';
             document.getElementById('split-container').classList.add('hidden');
         }
     }
 
-    // ==========================
-    // ระบบคำนวณหุ้นส่วนแบบ Real-time
-    // ==========================
     document.getElementById('cost').addEventListener('input', calculateSplit);
     document.getElementById('amount').addEventListener('input', calculateSplit);
 
@@ -240,24 +347,18 @@
         const cost = Number(document.getElementById('cost').value) || 0;
         const amount = Number(document.getElementById('amount').value) || 0;
         const container = document.getElementById('split-container');
-        
         if (amount > 0) {
             container.classList.remove('hidden');
             const profit = amount - cost;
-            const share = profit / 3;
-            
             document.getElementById('preview-cost').innerText = '฿' + cost.toLocaleString();
             document.getElementById('preview-profit').innerText = '฿' + profit.toLocaleString();
-            document.getElementById('preview-profit').className = profit >= 0 ? "font-black text-[#00e676]" : "font-black text-[#ef4444]";
-            document.getElementById('preview-share').innerText = '฿' + share.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            document.getElementById('preview-profit').className = profit >= 0 ? "font-black text-[#10B981] text-sm" : "font-black text-[#F43F5E] text-sm";
+            document.getElementById('preview-share').innerText = '฿' + (profit/3).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
         } else {
             container.classList.add('hidden');
         }
     }
 
-    // ==========================
-    // ระบบจัดการรูปถ่าย (Camera)
-    // ==========================
     function previewFile() {
         const file = document.getElementById('imageFile').files[0];
         if (file) {
@@ -266,7 +367,6 @@
                 document.getElementById('previewImage').src = reader.result;
                 document.getElementById('previewImage').classList.remove('hidden');
                 document.getElementById('upload-placeholder').style.opacity = '0';
-                
                 base64String = reader.result.split(',')[1];
                 fileMimeType = file.type;
                 fileNameStr = "cdam_" + Date.now() + "_" + file.name;
@@ -286,152 +386,220 @@
         base64String = "";
     }
 
-    // ==========================
-    // ส่งข้อมูลไป Apps Script
-    // ==========================
-    function submitData() {
+    async function submitData() {
         let detail = document.getElementById('detail').value;
         let amount = document.getElementById('amount').value;
         let cost = currentType === 'รับ' ? document.getElementById('cost').value : 0;
+        if (!detail || !amount) { Swal.fire({title: 'คำเตือน!', text: 'กรอกรายการและจำนวนเงินก่อนครับ', icon: 'warning', confirmButtonColor: '#6366F1', background: '#1E293B', color: '#fff'}); return; }
 
-        if (!detail || !amount) {
-            Swal.fire({title: 'เดี๋ยวก่อน!', text: 'กรอกรายการกับจำนวนเงินให้ครบก่อนครับ', icon: 'warning', confirmButtonColor: '#00e676', background: '#1a1c23', color: '#fff'});
-            return;
+        let btn = document.getElementById('submit-btn');
+        btn.innerHTML = "กำลังส่งข้อมูล... ⏳"; btn.disabled = true; btn.classList.add('opacity-50');
+
+        let payload = JSON.stringify({ type: currentType, detail: detail, cost: cost, amount: amount, imageBase64: base64String, mimeType: fileMimeType, fileName: fileNameStr });
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: payload });
+            Swal.fire({title: 'เรียบร้อย!', text: 'บันทึกรายการสำเร็จ', icon: 'success', confirmButtonColor: '#10B981', background: '#1E293B', color: '#fff', timer: 1500});
+            resetForm(); setTransactionType('รับ'); setTimeout(loadData, 1000); 
+        } catch (error) {
+            Swal.fire({title: 'ผิดพลาด', text: 'ระบบเครือข่ายมีปัญหา', icon: 'error', confirmButtonColor: '#F43F5E', background: '#1E293B', color: '#fff'});
+        } finally {
+            btn.innerHTML = currentType === 'รับ' ? "บันทึกรายรับ" : "บันทึกรายจ่าย"; btn.disabled = false; btn.classList.remove('opacity-50');
         }
+    }
 
-        let btn = document.getElementById('submitBtn');
-        let originalText = btn.innerText;
-        btn.innerHTML = "กำลังส่งข้อมูล... ⏳";
-        btn.disabled = true;
-
-        let payload = JSON.stringify({ 
-            type: currentType, detail: detail, cost: cost, amount: amount,
-            imageBase64: base64String, mimeType: fileMimeType, fileName: fileNameStr
-        });
-
-        fetch(SCRIPT_URL, { method: 'POST', body: payload })
-        .then(response => response.json())
-        .then(result => {
-            Swal.fire({title: 'เรียบร้อย!', text: 'บันทึกเข้าระบบแล้ว', icon: 'success', confirmButtonColor: '#00e676', background: '#1a1c23', color: '#fff', timer: 1500});
-            resetForm();
-            setTransactionType('รับ');
-            loadData(); // โหลดข้อมูลใหม่ทันที
-        })
-        .catch(error => {
-            Swal.fire({title: 'ส่งข้อมูลแล้ว!', text: 'บันทึกสำเร็จ', icon: 'success', confirmButtonColor: '#00e676', background: '#1a1c23', color: '#fff'});
-            resetForm();
-            loadData();
-        })
-        .finally(() => {
-            btn.innerHTML = "บันทึกการขาย";
-            btn.disabled = false;
+    function loadData() {
+        const status = document.getElementById('connection-status');
+        const syncTxt = document.getElementById('sync-text');
+        status.className = 'w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.6)]';
+        syncTxt.innerText = "กำลังซิงค์...";
+        fetch(SCRIPT_URL).then(res => res.json()).then(res => {
+            if(res.status === 'success') {
+                globalData = res.data; 
+                status.className = 'w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+                syncTxt.innerText = "ออนไลน์";
+                if(!document.getElementById('view-dashboard').classList.contains('hidden')) renderDashboard();
+                if(!document.getElementById('view-history').classList.contains('hidden')) renderHistory();
+                if(!document.getElementById('view-overview').classList.contains('hidden')) renderOverview();
+            }
+        }).catch(err => {
+            status.className = 'w-2.5 h-2.5 rounded-full bg-[#F43F5E] shadow-[0_0_8px_rgba(244,63,94,0.6)]'; syncTxt.innerText = "ออฟไลน์";
         });
     }
 
-    // ==========================
-    // โหลดข้อมูล Dashboard & History
-    // ==========================
-    function loadData() {
-        const status = document.getElementById('connection-status');
-        fetch(SCRIPT_URL)
-        .then(res => res.json())
-        .then(res => {
-            if(res.status === 'success') {
-                globalData = res.data; // [{date, type, detail, cost, amount, profit, image}]
-                status.classList.replace('bg-yellow-500', 'bg-[#00e676]');
-                status.classList.remove('animate-pulse');
-                renderDashboard();
-            }
-        }).catch(err => {
-            status.classList.replace('bg-yellow-500', 'bg-red-500');
-        });
+    function getMonthName(monthIndex) {
+        const names = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        return names[monthIndex];
     }
 
     function renderDashboard() {
-        let incTotal = 0; let expTotal = 0;
-        let dailyData = {};
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
+        let incTotal = 0; let expTotal = 0; let dailyData = {};
+        const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
+        document.getElementById('dash-month-title').innerText = `${getMonthName(month)} ${year + 543}`;
 
         globalData.forEach(row => {
             const rowDate = new Date(row.date);
             if (rowDate.getFullYear() === year && rowDate.getMonth() === month) {
-                const val = Number(row.amount) || 0;
-                const day = rowDate.getDate();
+                const val = Number(row.amount) || 0; const day = rowDate.getDate();
                 if (!dailyData[day]) dailyData[day] = { inc: 0, exp: 0 };
-                
-                if (row.type === 'รับ') { incTotal += val; dailyData[day].inc += val; } 
-                else { expTotal += val; dailyData[day].exp += val; }
+                if (row.type === 'รับ') { incTotal += val; dailyData[day].inc += val; } else { expTotal += val; dailyData[day].exp += val; }
             }
         });
 
         document.getElementById('total-income').innerText = '฿' + incTotal.toLocaleString();
         document.getElementById('total-expense').innerText = '฿' + expTotal.toLocaleString();
-        document.getElementById('net-profit').innerText = '฿' + (incTotal - expTotal).toLocaleString();
-        document.getElementById('net-profit').className = (incTotal - expTotal) >= 0 ? "text-4xl font-bold text-[#00e676] mb-4" : "text-4xl font-bold text-[#ef4444] mb-4";
-
+        let net = incTotal - expTotal;
+        let netEl = document.getElementById('net-profit');
+        netEl.innerText = '฿' + net.toLocaleString();
+        netEl.className = net >= 0 ? "text-4xl font-extrabold text-[#10B981] mb-5" : "text-4xl font-extrabold text-[#F43F5E] mb-5";
         renderCalendarUI(year, month, dailyData);
     }
 
     function renderCalendarUI(year, month, dailyData) {
-        const grid = document.getElementById('calendar-grid');
-        grid.innerHTML = '';
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-        
-        document.getElementById('month-title').innerText = `${monthNames[month]} ${String(year + 543).slice(-2)}`;
-
+        const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+        const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
         const todayDate = (year === new Date().getFullYear() && month === new Date().getMonth()) ? new Date().getDate() : null;
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const data = dailyData[day] || { inc: 0, exp: 0 };
-            const hasData = data.inc > 0 || data.exp > 0;
-            let cellStyle = 'border-gray-800';
-            if (hasData) cellStyle = data.inc >= data.exp ? 'border-[#00e676]/40 bg-[#00e676]/5' : 'border-[#ef4444]/50 bg-[#ef4444]/10';
-            
-            let html = `<div class="calendar-cell rounded-lg flex flex-col items-center justify-start py-1 border ${cellStyle}">
-                        <span class="text-[11px] mb-auto ${day === todayDate ? 'bg-white text-black w-5 h-5 rounded-full flex items-center justify-center font-bold' : 'text-gray-400 font-semibold'}">${day}</span>`;
-            if (data.inc > 0) html += `<span class="text-[#00e676] text-[9px] font-bold mt-1 leading-none w-full text-center truncate">+${(data.inc/1000).toFixed(1)}k</span>`;
-            if (data.exp > 0) html += `<span class="text-[#ef4444] text-[9px] font-bold mt-[2px] leading-none w-full text-center truncate">-${(data.exp/1000).toFixed(1)}k</span>`;
-            html += `</div>`;
-            grid.innerHTML += html;
+            const data = dailyData[day] || { inc: 0, exp: 0 }; const hasData = data.inc > 0 || data.exp > 0;
+            let cellStyle = 'border-[#334155]';
+            if (hasData) cellStyle = data.inc >= data.exp ? 'border-[#10B981]/40 bg-[#10B981]/5' : 'border-[#F43F5E]/40 bg-[#F43F5E]/5';
+            let html = `<div class="calendar-cell rounded-xl flex flex-col items-center justify-start py-1 border ${cellStyle}">
+                        <span class="text-[11px] mb-auto ${day === todayDate ? 'bg-[#6366F1] text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md' : 'text-slate-400 font-semibold'}">${day}</span>`;
+            if (data.inc > 0) html += `<span class="text-[#10B981] text-[9px] font-bold mt-1 leading-none w-full text-center truncate">+${(data.inc/1000).toFixed(1)}k</span>`;
+            if (data.exp > 0) html += `<span class="text-[#F43F5E] text-[9px] font-bold mt-[2px] leading-none w-full text-center truncate">-${(data.exp/1000).toFixed(1)}k</span>`;
+            html += `</div>`; grid.innerHTML += html;
         }
     }
 
     function renderHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = '';
-        if(globalData.length === 0) {
-            list.innerHTML = '<div class="text-center text-gray-500 text-sm mt-10">ยังไม่มีประวัติการขาย</div>';
-            return;
-        }
+        const list = document.getElementById('history-list'); list.innerHTML = '';
+        const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
+        document.getElementById('history-month-title').innerText = `${getMonthName(month)} ${year + 543}`;
+        const monthData = globalData.filter(row => { const d = new Date(row.date); return d.getFullYear() === year && d.getMonth() === month; });
+        if(monthData.length === 0) { list.innerHTML = '<div class="text-center text-slate-500 text-sm mt-10 font-medium">ยังไม่มีข้อมูลในเดือนนี้</div>'; return; }
         
-        globalData.forEach(item => {
-            let isInc = item.type === 'รับ';
-            let dateStr = new Date(item.date).toLocaleDateString('th-TH', {month:'short', day:'numeric'});
-            
+        monthData.forEach(item => {
+            let isInc = item.type === 'รับ'; let dateStr = new Date(item.date).toLocaleDateString('th-TH', {month:'short', day:'numeric'});
             list.innerHTML += `
-            <div class="card-bg border border-gray-800 rounded-2xl p-4 flex justify-between items-center shadow-sm mx-1">
+            <div class="card-style p-4 flex justify-between items-center mb-3">
                 <div class="flex-1 overflow-hidden pr-3">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-wider mb-1">
-                        ${dateStr} 
-                        ${isInc && item.profit ? `<span class="bg-gray-800 px-2 py-0.5 rounded text-[9px] font-bold text-gray-300 ml-2">กำไร: ฿${Number(item.profit).toLocaleString()}</span>` : ''}
+                    <p class="text-[9px] text-slate-400 font-bold tracking-wider mb-1 uppercase">${dateStr} 
+                        ${isInc && item.profit !== "" ? `<span class="bg-[#10B981]/10 text-[#10B981] px-1.5 py-0.5 rounded ml-2 border border-[#10B981]/20">กำไร ฿${Number(item.profit).toLocaleString()}</span>` : ''}
                     </p>
-                    <p class="text-sm font-semibold text-gray-200 truncate flex items-center gap-2">
-                        ${item.detail} 
-                        ${item.image ? `<a href="${item.image}" target="_blank" class="text-blue-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></a>` : ''}
+                    <p class="text-sm font-semibold text-slate-200 truncate flex items-center gap-2">${item.detail} 
+                        ${item.image ? `<a href="${item.image}" target="_blank" class="text-[#6366F1]"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></a>` : ''}
                     </p>
                 </div>
-                <h3 class="text-lg font-black ${isInc ? 'text-[#00e676]' : 'text-[#ef4444]'}">
-                    ${isInc ? '+' : '-'}฿${Number(item.amount).toLocaleString()}
-                </h3>
+                <h3 class="text-lg font-black ${isInc ? 'text-[#10B981]' : 'text-[#F43F5E]'}">${isInc ? '+' : '-'}฿${Number(item.amount).toLocaleString()}</h3>
             </div>`;
         });
     }
 
-    // เริ่มการทำงาน
+    // ==========================
+    // OVERVIEW & TAX LOGIC
+    // ==========================
+    function renderOverview() {
+        let allInc = 0; let allExp = 0; 
+        let monthInc = 0; let monthExp = 0; let monthProfit = 0;
+        let yearInc = 0; // เก็บยอดขายของปีนี้ (เพื่อคิดภาษี)
+        
+        const year = currentViewDate.getFullYear();
+        const month = currentViewDate.getMonth();
+        
+        document.getElementById('tax-year-title').innerText = year + 543;
+
+        globalData.forEach(row => {
+            const val = Number(row.amount) || 0;
+            const p = row.profit !== "" ? Number(row.profit) : 0;
+            const rowDate = new Date(row.date);
+            
+            // All time
+            if(row.type === 'รับ') { allInc += val; } else { allExp += val; }
+            // This Year
+            if(rowDate.getFullYear() === year && row.type === 'รับ') { yearInc += val; }
+            // This Month
+            if(rowDate.getFullYear() === year && rowDate.getMonth() === month) {
+                if(row.type === 'รับ') { monthInc += val; monthProfit += p; } else { monthExp += val; }
+            }
+        });
+
+        // 1. All time Stats
+        let totalNet = allInc - allExp;
+        document.getElementById('ov-all-profit').innerText = '฿' + totalNet.toLocaleString();
+        document.getElementById('ov-all-share').innerText = '฿' + (totalNet / 3).toLocaleString(undefined, {maximumFractionDigits: 0});
+        document.getElementById('ov-margin').innerText = monthInc > 0 ? ((monthProfit / monthInc) * 100).toFixed(1) + '%' : '0%';
+
+        // 2. TAX SYSTEM (VAT & Income Tax)
+        // VAT Alert
+        const VAT_LIMIT = 1800000;
+        let vatPercent = (yearInc / VAT_LIMIT) * 100;
+        if(vatPercent > 100) vatPercent = 100;
+        
+        let vatBar = document.getElementById('vat-bar');
+        let vatWarn = document.getElementById('vat-warning');
+        vatBar.style.width = vatPercent + '%';
+        document.getElementById('vat-text').innerText = '฿' + (yearInc/1000000).toFixed(2) + 'M / 1.8M';
+        
+        if(yearInc >= VAT_LIMIT) {
+            vatBar.className = "h-full bg-[#F43F5E] transition-all duration-1000";
+            vatWarn.innerHTML = "🚨 <b>ยอดขายเกิน 1.8 ล้านบาทแล้ว!</b> ต้องจด VAT 7%";
+            vatWarn.className = "text-[10px] text-[#F43F5E] mt-2 text-right";
+        } else if(yearInc >= 1500000) {
+            vatBar.className = "h-full bg-[#F59E0B] transition-all duration-1000";
+            vatWarn.innerHTML = "⚠️ <b>ใกล้ถึงเกณฑ์ VAT!</b> เตรียมตัวปรึกษานักบัญชี";
+            vatWarn.className = "text-[10px] text-[#F59E0B] mt-2 text-right";
+        } else {
+            vatBar.className = "h-full bg-[#10B981] transition-all duration-1000";
+            vatWarn.innerHTML = "ยอดขายยังปลอดภัย (ห่างจากเกณฑ์ VAT อีกเยอะ)";
+            vatWarn.className = "text-[9px] text-slate-500 mt-2 text-right";
+        }
+
+        // Income Tax Calculation (หักเหมา 60% + ลดหย่อนส่วนตัว 60,000)
+        let taxableIncome = yearInc - (yearInc * 0.60) - 60000; 
+        let tax = 0;
+        if(taxableIncome > 150000) {
+            let remain = taxableIncome - 150000;
+            if(remain > 150000) { tax += 150000 * 0.05; remain -= 150000; } else { tax += remain * 0.05; remain = 0; } // 150k-300k (5%)
+            if(remain > 200000) { tax += 200000 * 0.10; remain -= 200000; } else { tax += remain * 0.10; remain = 0; } // 300k-500k (10%)
+            if(remain > 250000) { tax += 250000 * 0.15; remain -= 250000; } else { tax += remain * 0.15; remain = 0; } // 500k-750k (15%)
+            if(remain > 250000) { tax += 250000 * 0.20; remain -= 250000; } else { tax += remain * 0.20; remain = 0; } // 750k-1M (20%)
+            if(remain > 0) { tax += remain * 0.25; } // เกิน 1M (ตีหลวมๆ ไว้ที่ 25%)
+        }
+        
+        let taxAmountEl = document.getElementById('tax-amount');
+        let taxAdviceEl = document.getElementById('tax-advice');
+        
+        if(tax <= 0) {
+            taxAmountEl.innerText = "฿0";
+            taxAmountEl.className = "text-sm font-black text-[#10B981]";
+            taxAdviceEl.innerText = "ยังไม่ต้องเสียภาษีเงินได้";
+            taxAdviceEl.className = "font-bold text-[#10B981]";
+        } else {
+            taxAmountEl.innerText = "฿" + tax.toLocaleString(undefined, {maximumFractionDigits: 0});
+            taxAmountEl.className = "text-sm font-black text-[#F43F5E]";
+            let monthlySave = tax / (12 - month); // หารจำนวนเดือนที่เหลือในปี
+            taxAdviceEl.innerText = `ควรเก็บเงินเดือนละ ฿${monthlySave.toLocaleString(undefined, {maximumFractionDigits: 0})} เพื่อจ่ายสิ้นปี`;
+            taxAdviceEl.className = "font-bold text-[#F59E0B]";
+        }
+
+        // 3. Status Bar (Inc vs Exp)
+        let totalMonth = monthInc + monthExp;
+        document.getElementById('ov-bar-inc').style.width = (totalMonth > 0 ? (monthInc/totalMonth)*100 : 50) + '%';
+        document.getElementById('ov-bar-exp').style.width = (totalMonth > 0 ? (monthExp/totalMonth)*100 : 50) + '%';
+        document.getElementById('ov-bar-inc-text').innerText = '฿' + monthInc.toLocaleString();
+        document.getElementById('ov-bar-exp-text').innerText = '฿' + monthExp.toLocaleString();
+
+        let statusEl = document.getElementById('ov-status');
+        if(totalMonth === 0) {
+            statusEl.innerText = "ยังไม่มีข้อมูลในเดือนนี้"; statusEl.className = "text-sm font-bold text-slate-400";
+        } else if((monthInc - monthExp) > 0) {
+            statusEl.innerText = "✨ ยอดเยี่ยม! มีกำไรกระแสเงินสดบวก"; statusEl.className = "text-sm font-bold text-[#10B981]";
+        } else {
+            statusEl.innerText = "⚠️ ระวัง! รายจ่ายมากกว่ารายรับ"; statusEl.className = "text-sm font-bold text-[#F43F5E]";
+        }
+    }
+
     loadData();
 </script>
 </body>
