@@ -90,7 +90,6 @@
             </div>
 
             <form id="sales-form" class="space-y-4">
-                <!-- ระบบเลือกวันที่ -->
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">📅 วันที่บันทึก (Date)</label>
                     <input type="date" id="record-date" required class="w-full bg-slate-50 text-slate-800 rounded-xl p-3 border border-slate-200 outline-none text-sm font-semibold focus:border-[#6366F1] transition shadow-sm">
@@ -252,7 +251,7 @@
 
 <script>
     // ==========================================
-    // ⚠️ วาง Web App URL ตรงนี้ (ต้อง Deploy แบบ New Version เสมอ)
+    // ⚠️ วาง Web App URL ตรงนี้
     // ==========================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbIpzXPWYVkFv2uDEZO-cYMM0pJRZZAparkWnCqd7NPatzBdiCOR_h3NvilDr4j0RSJA/exec';
     
@@ -261,12 +260,8 @@
     let base64String = "", fileMimeType = "", fileNameStr = "";
     let currentViewDate = new Date();
 
-    // Set Default Date Picker
     document.getElementById('record-date').valueAsDate = new Date();
 
-    // ==========================
-    // Core Functions
-    // ==========================
     function parseDateSafely(dateInput) {
         if(!dateInput) return new Date();
         let d = new Date(dateInput);
@@ -443,6 +438,9 @@
         renderCalendarUI(year, month, dailyData);
     }
 
+    // ==========================================
+    // ปฏิทินโชว์ตัวเลขเต็ม (฿XX,XXX)
+    // ==========================================
     function renderCalendarUI(year, month, dailyData) {
         const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
         const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -454,10 +452,14 @@
             const data = dailyData[day] || { inc: 0, exp: 0 }; const hasData = data.inc > 0 || data.exp > 0;
             let cellStyle = 'border-slate-100 bg-white shadow-sm';
             if (hasData) cellStyle = data.inc >= data.exp ? 'border-[#10B981]/30 bg-emerald-50' : 'border-[#F43F5E]/30 bg-rose-50';
+            
             let html = `<div class="calendar-cell rounded-xl flex flex-col items-center justify-start py-1 border ${cellStyle}">
                         <span class="text-[11px] mb-auto ${day === todayDate ? 'bg-[#6366F1] text-white w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md' : 'text-slate-600 font-semibold'}">${day}</span>`;
-            if (data.inc > 0) html += `<span class="text-[#10B981] text-[9px] font-bold mt-1 leading-none w-full text-center truncate">+${(data.inc/1000).toFixed(1)}k</span>`;
-            if (data.exp > 0) html += `<span class="text-[#F43F5E] text-[9px] font-bold mt-[2px] leading-none w-full text-center truncate">-${(data.exp/1000).toFixed(1)}k</span>`;
+            
+            // แสดงจำนวนเงินเต็มๆ พร้อมสัญลักษณ์ ฿ 
+            if (data.inc > 0) html += `<span class="text-[#10B981] text-[8px] sm:text-[9px] font-bold mt-1 tracking-tighter leading-none w-full text-center truncate">+฿${data.inc.toLocaleString()}</span>`;
+            if (data.exp > 0) html += `<span class="text-[#F43F5E] text-[8px] sm:text-[9px] font-bold mt-[2px] tracking-tighter leading-none w-full text-center truncate">-฿${data.exp.toLocaleString()}</span>`;
+            
             html += `</div>`; grid.innerHTML += html;
         }
     }
