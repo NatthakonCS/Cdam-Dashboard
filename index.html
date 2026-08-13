@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>cdam.store7 Dashboard</title>
+    <title>cdam.store7 OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,66 +12,43 @@
     .card-style { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
     .text-income { color: #10B981; }
     .text-expense { color: #F43F5E; }
-    
     .calendar-cell { height: 75px; transition: all 0.2s ease; overflow: hidden; }
     .nav-item.active { color: #6366F1; }
     ::-webkit-scrollbar { display: none; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    
     .fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body class="max-w-lg mx-auto">
 
-<!-- Header -->
 <div class="p-4 pt-8 sticky top-0 bg-white/95 backdrop-blur-md z-20 border-b border-slate-200 shadow-sm flex justify-between items-center">
-    <h1 class="text-xl font-extrabold tracking-widest text-slate-800">
-        CDAM<span class="text-slate-400 font-medium">.STORE7</span>
-    </h1>
+    <h1 class="text-xl font-extrabold tracking-widest text-slate-800">CDAM<span class="text-slate-400 font-medium">.STORE7</span></h1>
     <div class="flex items-center gap-2">
         <span id="sync-text" class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">กำลังซิงค์...</span>
         <div id="connection-status" class="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-pulse"></div>
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="p-4" id="main-content">
-
-    <!-- ================= 1. DASHBOARD VIEW ================= -->
+    <!-- ================= 1. DASHBOARD ================= -->
     <div id="view-dashboard" class="view-section fade-in">
-        
         <div class="flex justify-between items-center bg-slate-100 rounded-full p-1.5 mb-5 border border-slate-200">
-            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full bg-white shadow text-slate-600 flex items-center justify-center hover:bg-slate-50 transition">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
+            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full bg-white shadow text-slate-600 flex items-center justify-center hover:bg-slate-50 transition"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
             <span id="dash-month-title" class="font-bold text-sm tracking-widest uppercase text-[#6366F1]">...</span>
-            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full bg-white shadow text-slate-600 flex items-center justify-center hover:bg-slate-50 transition">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6 6"/></svg>
-            </button>
+            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full bg-white shadow text-slate-600 flex items-center justify-center hover:bg-slate-50 transition"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6 6"/></svg></button>
         </div>
-
         <div class="card-style p-6 mb-6 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#6366F1] to-[#10B981]"></div>
-            <p class="text-[10px] text-slate-500 font-bold tracking-widest mb-1 uppercase">กำไรสุทธิเดือนนี้ (Net Profit)</p>
+            <p class="text-[10px] text-slate-500 font-bold tracking-widest mb-1 uppercase">กำไรสุทธิเดือนนี้</p>
             <h2 class="text-4xl font-extrabold text-slate-800 mb-5" id="net-profit">฿0</h2>
-            
             <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-5">
-                <div>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">ยอดขายรวม</p>
-                    <h3 class="text-lg font-bold text-income" id="total-income">฿0</h3>
-                </div>
-                <div>
-                    <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">รายจ่ายร้าน</p>
-                    <h3 class="text-lg font-bold text-expense" id="total-expense">฿0</h3>
-                </div>
+                <div><p class="text-[9px] text-slate-400 font-bold uppercase mb-1">ยอดขายรวม</p><h3 class="text-lg font-bold text-income" id="total-income">฿0</h3></div>
+                <div><p class="text-[9px] text-slate-400 font-bold uppercase mb-1">รายจ่ายร้าน</p><h3 class="text-lg font-bold text-expense" id="total-expense">฿0</h3></div>
             </div>
         </div>
-
         <div class="card-style p-5 mb-6">
-            <h3 class="text-sm font-bold text-slate-800 tracking-tight mb-4 flex items-center gap-2">
-                <span class="text-[#6366F1] text-lg">📅</span> ปฏิทินยอดขาย
-            </h3>
+            <h3 class="text-sm font-bold text-slate-800 tracking-tight mb-4 flex items-center gap-2"><span class="text-[#6366F1] text-lg">📅</span> ปฏิทินยอดขาย</h3>
             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400 mb-2">
                 <div class="text-[#F43F5E]">อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div class="text-[#6366F1]">ส.</div>
             </div>
@@ -79,10 +56,9 @@
         </div>
     </div>
 
-    <!-- ================= 2. ADD RECORD VIEW ================= -->
+    <!-- ================= 2. ADD RECORD ================= -->
     <div id="view-add" class="view-section hidden fade-in">
         <div class="card-style p-6 relative">
-            
             <div class="flex bg-slate-100 rounded-xl p-1.5 mb-6 border border-slate-200 relative shadow-inner">
                 <div id="toggle-bg" class="absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#10B981] rounded-lg transition-all duration-300 shadow-sm"></div>
                 <button type="button" id="btn-type-income" class="w-1/2 py-2.5 text-sm font-bold text-white z-10 rounded-lg" onclick="setTransactionType('รับ')">🟢 รับเงิน (Income)</button>
@@ -97,11 +73,10 @@
 
                 <div class="mb-2 mt-2">
                     <label class="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wider">📸 รูปภาพ / ใบเสร็จ</label>
-                    <!-- เอาคำว่า capture="environment" ออกแล้ว จะมีเมนูให้เลือกว่าถ่ายรูปหรือเลือกแกลลอรี่ -->
                     <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:border-[#6366F1] transition relative overflow-hidden">
                         <div id="upload-placeholder" class="flex flex-col items-center justify-center text-slate-400">
                             <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-                            <p class="text-xs font-bold">แตะเพื่อถ่ายรูป / เลือกรูป</p>
+                            <p class="text-xs font-bold" id="upload-text">แตะเพื่อถ่ายรูป / เลือกรูป</p>
                         </div>
                         <input type="file" id="imageFile" class="hidden" accept="image/*" onchange="previewAndCompressFile()" />
                         <img id="previewImage" class="absolute inset-0 w-full h-full object-cover hidden" />
@@ -125,21 +100,10 @@
                 </div>
 
                 <div id="split-container" class="bg-emerald-50 border border-[#10B981]/30 rounded-xl p-4 hidden mt-2">
-                    <p class="text-[10px] text-[#10B981] font-bold mb-3 uppercase tracking-wider flex justify-between items-center border-b border-[#10B981]/20 pb-2">
-                        <span>💡 ระบบคำนวณส่วนแบ่ง</span>
-                    </p>
-                    <div class="flex justify-between items-center text-xs mb-1.5 text-slate-500">
-                        <span>คืนทุนเข้าร้าน:</span>
-                        <span class="font-bold text-slate-800" id="preview-cost">฿0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs mb-3 pb-3 border-b border-slate-200">
-                        <span class="text-[#10B981] font-bold">กำไรสุทธิ:</span>
-                        <span class="font-black text-[#10B981] text-sm" id="preview-profit">฿0</span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs text-[#6366F1]">
-                        <span>✨ หุ้นส่วนได้คนละ (÷3):</span>
-                        <span class="font-bold text-[#6366F1] text-sm bg-[#6366F1]/10 px-2 py-1 rounded" id="preview-share">฿0</span>
-                    </div>
+                    <p class="text-[10px] text-[#10B981] font-bold mb-3 uppercase tracking-wider flex justify-between items-center border-b border-[#10B981]/20 pb-2"><span>💡 ระบบคำนวณส่วนแบ่ง</span></p>
+                    <div class="flex justify-between items-center text-xs mb-1.5 text-slate-500"><span>คืนทุนเข้าร้าน:</span><span class="font-bold text-slate-800" id="preview-cost">฿0</span></div>
+                    <div class="flex justify-between items-center text-xs mb-3 pb-3 border-b border-slate-200"><span class="text-[#10B981] font-bold">กำไรสุทธิ:</span><span class="font-black text-[#10B981] text-sm" id="preview-profit">฿0</span></div>
+                    <div class="flex justify-between items-center text-xs text-[#6366F1]"><span>✨ หุ้นส่วนได้คนละ (÷3):</span><span class="font-bold text-[#6366F1] text-sm bg-[#6366F1]/10 px-2 py-1 rounded" id="preview-share">฿0</span></div>
                 </div>
 
                 <button type="button" class="w-full bg-[#10B981] text-white font-black uppercase tracking-widest rounded-xl p-4 mt-4 hover:opacity-90 active:scale-[0.98] transition shadow-[0_4px_14px_rgba(16,185,129,0.4)]" id="submit-btn" onclick="submitData()">
@@ -149,7 +113,7 @@
         </div>
     </div>
 
-    <!-- ================= 3. HISTORY VIEW ================= -->
+    <!-- ================= 3. HISTORY ================= -->
     <div id="view-history" class="view-section hidden fade-in">
         <div class="flex justify-between items-center bg-slate-100 rounded-full p-1.5 mb-5 border border-slate-200">
             <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full bg-white shadow text-slate-600 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -161,18 +125,13 @@
         </div>
     </div>
 
-    <!-- ================= 4. OVERVIEW VIEW ================= -->
+    <!-- ================= 4. OVERVIEW ================= -->
     <div id="view-overview" class="view-section hidden fade-in">
         <div class="card-style p-6 mb-5 relative overflow-hidden bg-slate-800 border-none">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-[#6366F1] rounded-full blur-3xl opacity-30"></div>
             <p class="text-[10px] text-slate-300 font-bold tracking-widest mb-1 uppercase">ผลประกอบการรวมตั้งแต่เปิดร้าน</p>
             <h2 class="text-3xl font-black text-white mb-2" id="ov-all-profit">฿0</h2>
-            <p class="text-xs text-[#10B981] font-semibold flex items-center gap-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                กำไรสุทธิรวม (All-time Net Profit)
-            </p>
         </div>
-
         <div class="grid grid-cols-2 gap-4 mb-5">
             <div class="card-style p-4 bg-indigo-50 border-indigo-100">
                 <p class="text-[9px] text-[#6366F1] font-bold uppercase tracking-wider mb-2 text-center">หุ้นส่วนได้รับสะสม</p>
@@ -183,7 +142,6 @@
                 <h3 class="text-xl font-black text-slate-800 text-center" id="ov-margin">0%</h3>
             </div>
         </div>
-
         <div class="card-style p-5 mb-5 border-l-4 border-l-[#F59E0B]">
             <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">⚖️ สุขภาพภาษีร้าน (ปี <span id="tax-year-title"></span>)</h3>
             <div class="mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -202,63 +160,37 @@
                     <p class="text-sm font-black text-[#F59E0B]" id="tax-amount">฿0</p>
                 </div>
                 <div class="border-t border-slate-200 pt-2 mt-2">
-                    <p class="text-[10px] text-slate-500 flex justify-between">
-                        คำแนะนำ: <span id="tax-advice" class="font-bold text-[#10B981]">ยังไม่ต้องเสียภาษี</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-style p-5 mb-6">
-            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">สัดส่วนเงินเดือนนี้</h3>
-            <div class="mb-4">
-                <div class="flex justify-between text-xs mb-1">
-                    <span class="text-[#10B981] font-bold">รับ <span id="ov-bar-inc-text">฿0</span></span>
-                    <span class="text-[#F43F5E] font-bold">จ่าย <span id="ov-bar-exp-text">฿0</span></span>
-                </div>
-                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
-                    <div id="ov-bar-inc" class="h-full bg-[#10B981] transition-all duration-1000" style="width: 50%"></div>
-                    <div id="ov-bar-exp" class="h-full bg-[#F43F5E] transition-all duration-1000" style="width: 50%"></div>
+                    <p class="text-[10px] text-slate-500 flex justify-between">คำแนะนำ: <span id="tax-advice" class="font-bold text-[#10B981]">ยังไม่ต้องเสียภาษี</span></p>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- Bottom Navigation -->
 <div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 pb-safe z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
     <div class="max-w-lg mx-auto grid grid-cols-4 items-center p-1.5">
-        <button onclick="switchTab('dashboard')" class="nav-item active flex flex-col items-center justify-center py-2 text-[#6366F1] transition" id="tab-dashboard">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
-            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">หน้าหลัก</span>
-        </button>
+        <button onclick="switchTab('dashboard')" class="nav-item active flex flex-col items-center justify-center py-2 text-[#6366F1] transition" id="tab-dashboard"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg><span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">หน้าหลัก</span></button>
         <button onclick="switchTab('add')" class="nav-item flex flex-col items-center justify-center relative text-slate-400 transition" id="tab-add">
-            <div class="absolute -top-6 bg-[#6366F1] text-white rounded-full p-3 shadow-lg border-2 border-white">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </div>
+            <div class="absolute -top-6 bg-[#6366F1] text-white rounded-full p-3 shadow-lg border-2 border-white"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
             <span class="text-[8px] mt-7 font-bold uppercase tracking-wider">ลงบัญชี</span>
         </button>
-        <button onclick="switchTab('history')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-400 transition" id="tab-history">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line></svg>
-            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ประวัติ</span>
-        </button>
-        <button onclick="switchTab('overview')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-400 transition" id="tab-overview">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h14v-4"></path></svg>
-            <span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ภาพรวม</span>
-        </button>
+        <button onclick="switchTab('history')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-400 transition" id="tab-history"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line></svg><span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ประวัติ</span></button>
+        <button onclick="switchTab('overview')" class="nav-item flex flex-col items-center justify-center py-2 text-slate-400 transition" id="tab-overview"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h14v-4"></path></svg><span class="text-[8px] mt-1.5 font-bold uppercase tracking-wider">ภาพรวม</span></button>
     </div>
 </div>
 
 <script>
     // ==========================================
-    // ⚠️ วาง Web App URL ตรงนี้
+    // ⚠️ 1. วาง Web App URL จาก Apps Script
+    // ⚠️ 2. วาง API Key จาก ImgBB ที่นี่!!!
     // ==========================================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHVcBqVV3W1Aqm0lnMwnjuBrQhmtqNjqCKtZunoNi98iZAr-qAacd-nKA2NQ73FodD0Q/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXUkWmYDhutitt7xQHOhNivcljCysudSdbL82YKsfhfCXGVSfXqN5Wve7xDO0NRnYmIQ/exec';
+    const IMGBB_API_KEY = '6513070c440d6f49a07def8e99680fe4';
     
     let globalData = [];
     let currentType = 'รับ';
-    let base64String = "", fileMimeType = "", fileNameStr = "";
+    let base64String = "";
     let currentViewDate = new Date();
 
     document.getElementById('record-date').valueAsDate = new Date();
@@ -343,46 +275,37 @@
         }
     }
 
-    // ==========================
-    // บีบอัดรูปภาพ (Image Compression)
-    // ==========================
     function previewAndCompressFile() {
         const file = document.getElementById('imageFile').files[0];
         if (!file) return;
+
+        let btn = document.getElementById('submit-btn');
+        btn.disabled = true; btn.innerText = "กำลังย่อรูปภาพ..."; btn.classList.add('opacity-50');
 
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
-                // สร้าง Canvas เพื่อย่อขนาดภาพ
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // กำหนดความกว้างสูงสุดให้พอดี
-                const MAX_HEIGHT = 800;
-                let width = img.width;
-                let height = img.height;
+                const MAX_WIDTH = 800; const MAX_HEIGHT = 800;
+                let width = img.width; let height = img.height;
+                if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+                else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
 
-                // คำนวณอัตราส่วนภาพใหม่
-                if (width > height) {
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                } else {
-                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
+                canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // บีบอัดเป็น JPEG ที่คุณภาพ 70% (ไฟล์จะเล็กลงมาก ส่งไวขึ้น)
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                
                 document.getElementById('previewImage').src = dataUrl;
                 document.getElementById('previewImage').classList.remove('hidden');
                 document.getElementById('upload-placeholder').style.opacity = '0';
                 
+                // เอาแค่ข้อมูล Base64 เตรียมส่งให้ ImgBB
                 base64String = dataUrl.split(',')[1]; 
-                fileMimeType = 'image/jpeg'; 
-                fileNameStr = "cdam_" + Date.now() + ".jpg";
+
+                btn.disabled = false; btn.classList.remove('opacity-50');
+                btn.innerText = currentType === 'รับ' ? "บันทึกรายรับ" : "บันทึกรายจ่าย";
             }
             img.src = e.target.result;
         }
@@ -401,9 +324,6 @@
         base64String = "";
     }
 
-    // ==========================
-    // Fetch Data (อัปเดต Header แบบทางการ)
-    // ==========================
     async function submitData() {
         let detail = document.getElementById('detail').value;
         let amount = document.getElementById('amount').value;
@@ -413,22 +333,41 @@
         if (!detail || !amount || !dateVal) { Swal.fire({title: 'คำเตือน!', text: 'กรอกวันที่ รายการ และจำนวนเงินให้ครบครับ', icon: 'warning', confirmButtonColor: '#6366F1'}); return; }
 
         let btn = document.getElementById('submit-btn');
-        btn.innerHTML = "กำลังส่งข้อมูล... ⏳"; btn.disabled = true; btn.classList.add('opacity-50');
-
-        let payload = JSON.stringify({ type: currentType, detail: detail, cost: cost, amount: amount, date: dateVal, imageBase64: base64String, mimeType: fileMimeType, fileName: fileNameStr });
+        btn.disabled = true; btn.classList.add('opacity-50');
         
+        let finalImageUrl = "";
+
+        // 1. อัปโหลดรูปไปที่ ImgBB ก่อน
+        if (base64String !== "") {
+            btn.innerHTML = "กำลังฝากรูปภาพ... 🖼️";
+            try {
+                let formData = new FormData();
+                formData.append("image", base64String);
+                
+                let imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+                let imgbbJson = await imgbbRes.json();
+                
+                if(imgbbJson.success) {
+                    finalImageUrl = imgbbJson.data.url; // ได้ลิงก์ .jpg ตรงๆ มาเลย
+                }
+            } catch (err) {
+                console.error("ImgBB Upload Error:", err);
+            }
+        }
+
+        // 2. ส่งข้อมูลไปหา Google Apps Script
+        btn.innerHTML = "กำลังบันทึกลงบัญชี... ⏳";
+        let payload = JSON.stringify({ 
+            type: currentType, detail: detail, cost: cost, 
+            amount: amount, date: dateVal, imageUrl: finalImageUrl 
+        });
+
         try {
-            // ใช้ text/plain ป้องกันปัญหา CORS บล็อกใน Safari/Chrome มือถือ
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: payload 
-            });
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: payload });
             Swal.fire({title: 'เรียบร้อย!', text: 'บันทึกรายการสำเร็จ', icon: 'success', confirmButtonColor: '#10B981', timer: 1500});
             resetForm(); setTransactionType('รับ'); setTimeout(loadData, 1000); 
         } catch (error) {
-            Swal.fire({title: 'ส่งข้อมูลแล้ว!', text: 'อัปเดตลงตารางแล้วครับ', icon: 'success', confirmButtonColor: '#10B981', timer: 1500});
-            resetForm(); setTransactionType('รับ'); setTimeout(loadData, 1000); 
+            Swal.fire({title: 'ผิดพลาด', text: 'ระบบเครือข่ายมีปัญหา', icon: 'error', confirmButtonColor: '#F43F5E'});
         } finally {
             btn.innerHTML = currentType === 'รับ' ? "บันทึกรายรับ" : "บันทึกรายจ่าย"; btn.disabled = false; btn.classList.remove('opacity-50');
         }
@@ -481,9 +420,6 @@
         renderCalendarUI(year, month, dailyData);
     }
 
-    // ==========================================
-    // ปฏิทินโชว์ตัวเลขเต็ม (฿XX,XXX)
-    // ==========================================
     function renderCalendarUI(year, month, dailyData) {
         const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
         const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -523,7 +459,7 @@
                         ${isInc && item.profit !== "" ? `<span class="bg-emerald-50 text-[#10B981] px-1.5 py-0.5 rounded ml-2 border border-emerald-100">กำไร ฿${Number(item.profit).toLocaleString()}</span>` : ''}
                     </p>
                     <p class="text-sm font-semibold text-slate-800 truncate flex items-center gap-2">${item.detail} 
-                        ${item.image ? `<a href="${item.image}" target="_blank" class="text-[#6366F1]"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></a>` : ''}
+                        ${item.image && item.image !== "" ? `<a href="${item.image}" target="_blank" class="text-[#6366F1]"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></a>` : ''}
                     </p>
                 </div>
                 <h3 class="text-lg font-black ${isInc ? 'text-[#10B981]' : 'text-[#F43F5E]'}">${isInc ? '+' : '-'}฿${Number(item.amount).toLocaleString()}</h3>
